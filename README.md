@@ -20,8 +20,7 @@ Files
 
 * `peerr.awk`   - the bot (run daily from cron)
 * `project.cfg` - project configuration
-* `push.csh`    - mirrors ~/www output to Toolforge. Each tool carries its own copy
-                  so that a repo move cannot break an unrelated tool.
+* `push.csh`    - mirrors ~/www output to Toolforge
 * `crontab.txt` - the cron entry
 
 Output is published at

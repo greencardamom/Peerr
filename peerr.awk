@@ -218,7 +218,11 @@ function main(  cat,a,i,watch,b) {
 BEGIN {
 
   IGNORECASE = 1
-  Agent = "peerr acre User:GreenC enwiki"
+
+  # WMF policy requires a contact address in the user-agent. Read it from a file so it is
+  # never committed, and so it can be rotated in one place.
+  EmailFP = "/home/greenc/scripts/secrets/greenc.email"
+  Agent = "medic-peerr/1.0 (https://en.wikipedia.org/wiki/User:GreenC; " strip(readfile(EmailFP)) ")"
 
   Home = "/home/greenc/toolforge/peerr/"
 
