@@ -1,0 +1,5 @@
+temp.txt
+www/*.txt
+data/*
+meta/*
+!*/.emptydir
