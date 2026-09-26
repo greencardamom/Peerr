@@ -34,8 +34,8 @@
 @include "library.awk"
 
 #
-# entity_exists - see if a page on Wikipedia exists
-#   eg. if ( ! entity_exists("Gutenberg author") ) print "Unknown page"
+# pageExists - see if a page on Wikipedia exists
+#   eg. if ( ! pageExists("Gutenberg author") ) print "Unknown page"
 #
 function pageExists(entity   ,url,jsonin) {
 
@@ -89,9 +89,9 @@ function loadList(file,  a,b,page,i) {
   }
 }
 
-function saveList(file) {
+function saveList(file,  page) {
   if(checkexists(file)) 
-    sys2var(Exe["rm"] " -r " file)
+    sys2var(Exe["rm"] " -f " file)
   for(page in L) 
     print L[page]["page"] " ---- " L[page]["date"] " ---- " L[page]["prpage"] >> file
   
@@ -175,6 +175,23 @@ function deleteTemplate(page,  temp,fp,d,command,result,comres) {
   return result
 }
 
+#
+# Build the user-agent. WMF policy requires a contact address; it is read from a file so it
+# is never committed and can be rotated in one place. readfile() returns empty for a missing
+# or unreadable file, which would otherwise send a UA with no contact for the whole run, so
+# refuse to start instead. The address stays a local - never a global.
+#
+function buildAgent(fp,  contact) {
+
+  contact = strip(readfile(fp))
+  if(empty(contact)) {
+    stdErr(dateeight() ": Fatal: missing or empty contact file, cannot form user-agent: " fp)
+    exit 1
+  }
+  return "medic-peerr/1.0 (https://en.wikipedia.org/wiki/User:GreenC; " contact ")"
+
+}
+
 function main(  cat,a,i,watch,b) {
 
   loadList(List)
@@ -219,10 +236,7 @@ BEGIN {
 
   IGNORECASE = 1
 
-  # WMF policy requires a contact address in the user-agent. Read it from a file so it is
-  # never committed, and so it can be rotated in one place.
-  EmailFP = "/home/greenc/scripts/secrets/greenc.email"
-  Agent = "medic-peerr/1.0 (https://en.wikipedia.org/wiki/User:GreenC; " strip(readfile(EmailFP)) ")"
+  Agent = buildAgent("/home/greenc/scripts/secrets/greenc.email")
 
   Home = "/home/greenc/toolforge/peerr/"
 
@@ -233,12 +247,10 @@ BEGIN {
   # Template:Peer review
   templateRE = "[{][{][[:space:]]*(peer review|peerreview|pr)[[:space:]]*[|][^}]*[}][}]"
 
+  # Only what syscfg.awk lacks or what genuinely differs from it - date, rm, timeout and
+  # wget come from syscfg and must not be redeclared here, where they would clobber it.
   # wikiget : https://github.com/greencardamom/Wikiget
   Exe["wikiget"] = "/home/greenc/scripts/wikiget.awk"
-  Exe["timeout"] = "/usr/bin/timeout"
-  Exe["wget"]    = "/usr/bin/wget"
-  Exe["date"]    = "/bin/date"
-  Exe["rm"]      = "/bin/rm"
   Exe["sleep"]   = "/bin/sleep"
   Exe["push"]    = Home "push"
 

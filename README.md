@@ -24,4 +24,4 @@ Files
 * `crontab.txt` - the cron entry
 
 Output is published at
-[botwikiawk/peerr](https://botwikiawk.toolforge.org/static/peerr/).
+[botwikiawk/peerr](https://tools-static.wmflabs.org/botwikiawk/peerr/).
